@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>¿Qué tipo de trader eres? · Williams Trader</title>
+<meta name="description" content="Descubre tu personalidad operativa, tu fortaleza, tu punto débil y el estilo de trading que podría encajar mejor contigo.">
+<meta name="theme-color" content="#111111">
+<style>
+:root{--bg:#111;--card:#1E1E1E;--tx:#FAFAFA;--mu:#A8A8A8;--or:#FF6726;--ac:#FF6726;--ln:#333}
+*{box-sizing:border-box}html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--tx);font:17px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+main{max-width:640px;margin:0 auto;padding:20px 18px 60px;min-height:100vh}
+h1,h2,h3{line-height:1.12;margin:0 0 .5em;font-weight:800;letter-spacing:-.01em}
+h1{font-size:clamp(2rem,9vw,3rem)}h2{font-size:1.35rem}h3{font-size:1.05rem}
+p{margin:0 0 1em}.brand{font-size:.78rem;letter-spacing:.14em;font-weight:700;color:var(--or);margin-bottom:28px}
+.mu{color:var(--mu)}.note{font-size:.85rem;color:var(--mu)}
+.b{display:block;width:100%;min-height:52px;padding:14px 20px;border:2px solid var(--or);border-radius:12px;background:var(--or);color:#111;font:700 1rem inherit;cursor:pointer;margin:10px 0}
+.b.g{background:transparent;color:var(--tx);border-color:#555}.b:disabled{opacity:.35;cursor:default}
+.b:focus-visible,input:focus-visible+span{outline:3px solid #fff;outline-offset:2px}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:22px 0}
+.chips span{font-size:.82rem;font-weight:700;padding:6px 12px;border-radius:99px;border:1.5px solid var(--c);color:var(--c)}
+.pg{margin-bottom:22px;font-size:.9rem;color:var(--mu)}.bar{height:6px;background:#2A2A2A;border-radius:9px;margin-top:8px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--or);transition:width .3s}
+fieldset{border:0;padding:0;margin:0}legend{font-size:1.3rem;font-weight:800;line-height:1.3;margin-bottom:18px;padding:0;outline:0}
+.op{display:block;margin:10px 0;cursor:pointer}.op input{position:absolute;opacity:0}
+.op span{display:block;padding:15px 16px;background:var(--card);border:2px solid var(--ln);border-radius:12px;min-height:52px}
+.op input:checked+span{border-color:var(--or);background:#2A1A12}
+.err{color:#FF8A5C;min-height:1.5em;margin:10px 0 0;font-weight:600}.nav{display:grid;grid-template-columns:1fr 2fr;gap:10px}
+.ld{text-align:center;padding-top:30vh}.sp{width:44px;height:44px;border:4px solid #333;border-top-color:var(--or);border-radius:50%;margin:0 auto 20px;animation:r 1s linear infinite}
+@keyframes r{to{transform:rotate(360deg)}}@media(prefers-reduced-motion:reduce){.sp{animation:none}.bar i{transition:none}}
+.res{--ac:#FF6726}.img{aspect-ratio:1;max-width:320px;margin:0 auto 22px;border:2px dashed var(--ac);border-radius:18px;background:color-mix(in srgb,var(--ac) 12%,#1E1E1E);display:flex;align-items:center;justify-content:center;text-align:center;font-size:.8rem;color:var(--mu);padding:14px;overflow:hidden}
+.img img{width:100%;height:100%;object-fit:cover;border-radius:16px}
+.kick{font-size:.8rem;letter-spacing:.12em;font-weight:700;color:var(--ac);text-transform:uppercase}
+.res h1{color:var(--ac)}.tag{font-size:1.2rem;font-weight:700;margin-bottom:14px}
+.bx{background:var(--card);border:1px solid var(--ln);border-left:5px solid var(--bc,var(--ac));border-radius:12px;padding:14px 16px;margin:12px 0}
+.bx h3{margin-bottom:4px;color:var(--bc,var(--ac))}.bx p{margin:0}.bx ul{margin:6px 0 0;padding-left:20px}.bx li{margin:4px 0}
+.warn{--bc:#FF8A5C}.pill{display:inline-block;padding:4px 12px;border-radius:99px;font-weight:800;font-size:.95rem;background:var(--bc);color:#111;margin-bottom:8px}
+.mix{margin:26px 0 8px}.row{display:grid;grid-template-columns:150px 1fr;gap:10px;align-items:center;margin:7px 0;font-size:.85rem}
+.row b{color:var(--c)}.row div{height:10px;background:#2A2A2A;border-radius:9px;overflow:hidden}.row i{display:block;height:100%;background:var(--c);border-radius:9px}
+.toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:#FAFAFA;color:#111;padding:12px 18px;border-radius:12px;font-weight:700;max-width:90%;z-index:9}
+.sty{margin-top:30px}
+</style>
+</head>
+<body>
+<main id="app"></main>
+<div id="ts" class="toast" role="status" hidden></div>
+<script src="js/data.js"></script>
+<script>
+(function(){
+const {Q,ARCH,STY,AR,CFG,compute}=TPL, N=Q.length, KEY='tpl_trader_v1', app=document.getElementById('app');
+const NOTE='Este test es educativo y orientativo. No es asesoramiento financiero y no garantiza rentabilidad.';
+let st={ans:Array(N).fill(null),i:0,screen:'cover'};
+try{const s=JSON.parse(localStorage.getItem(KEY));if(s&&Array.isArray(s.ans)&&s.ans.length===N){st=s;if(st.screen==='loading')st.screen='result'}}catch(e){}
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(st))}catch(e){}};
+const done=()=>st.ans.every(a=>a!==null), started=()=>st.ans.some(a=>a!==null);
+const $=s=>app.querySelector(s);
+function go(s){st.screen=s;save();render();window.scrollTo(0,0)}
+
+function cover(){
+ app.innerHTML=`<p class="brand">WILLIAMS TRADER · TRADING PRO LAB</p>
+ <h1>¿Qué tipo de trader eres?</h1>
+ <p class="mu">Descubre tu personalidad operativa, tu fortaleza, tu punto débil y el estilo de trading que podría encajar mejor contigo.</p>
+ <div class="chips" aria-label="Los 8 tipos de trader">${AR.map(k=>`<span style="--c:${ARCH[k].color}">${ARCH[k].name}</span>`).join('')}</div>
+ <p>⏱ Toma entre 4 y 6 minutos · ${N} preguntas · Sin registro ni correo</p>
+ <button class="b" id="go">${started()&&!done()?'Continuar donde lo dejé':'Descubrir mi tipo de trader'}</button>
+ ${started()&&!done()?'<button class="b g" id="rs">Empezar de nuevo</button>':''}
+ <p class="note">Es una orientación educativa, no una promesa de resultados ni asesoramiento financiero. Tus respuestas se quedan en tu dispositivo.</p>`;
+ $('#go').onclick=()=>{if(done())st.i=0;st.i=Math.min(st.i,N-1);go('quiz')};
+ const r=$('#rs');if(r)r.onclick=reset;
+}
+
+function quiz(){
+ const i=st.i,q=Q[i],a=st.ans[i];
+ app.innerHTML=`<div class="pg"><span>Pregunta ${i+1} de ${N}</span><div class="bar" role="progressbar" aria-valuemin="1" aria-valuemax="${N}" aria-valuenow="${i+1}"><i style="width:${(i+1)/N*100}%"></i></div></div>
+ <fieldset><legend id="lg" tabindex="-1">${q.q}</legend>
+ ${q.o.map((o,j)=>`<label class="op"><input type="radio" name="q" value="${j}" ${a===j?'checked':''}><span>${o.t}</span></label>`).join('')}</fieldset>
+ <p class="err" id="er" role="alert"></p>
+ <div class="nav"><button class="b g" id="pv" ${i?'':'disabled'}>Anterior</button><button class="b" id="nx">${i===N-1?'Ver mi resultado':'Continuar'}</button></div>`;
+ app.querySelectorAll('input').forEach(x=>x.onchange=()=>{st.ans[i]=+x.value;save();$('#er').textContent=''});
+ $('#pv').onclick=()=>{if(i){st.i--;save();render()}};
+ $('#nx').onclick=()=>{
+  if(st.ans[i]===null){$('#er').textContent='Elige una opción para continuar (pregunta '+(i+1)+').';app.querySelector('input').focus();return}
+  if(i===N-1){const p=st.ans.findIndex(x=>x===null);if(p>-1){st.i=p;save();render();return}go('loading');setTimeout(()=>go('result'),matchMedia('(prefers-reduced-motion:reduce)').matches?300:1500)}
+  else{st.i++;save();render()}};
+ $('#lg').focus({preventScroll:true});
+}
+
+function loading(){app.innerHTML='<div class="ld" role="status"><div class="sp"></div><h2>Analizando tus patrones de decisión…</h2></div>'}
+
+const url=()=>CFG.url||(/^https?:$/.test(location.protocol)?location.origin+location.pathname:'');
+function shareText(r){
+ const A=ARCH[r.top],s=r.style&&!r.process?` Estilo que podría explorar: ${STY[r.style].name}.`:'';
+ return `Soy ${A.name} 🎯 «${A.tag}»${s}\nDescubre qué tipo de trader eres:`;
+}
+function toast(m){const t=document.getElementById('ts');t.textContent=m;t.hidden=false;clearTimeout(toast.h);toast.h=setTimeout(()=>t.hidden=true,2800)}
+async function out(title,text){
+ const u=url(),full=text+(u?' '+u:'');
+ if(navigator.share){try{await navigator.share(u?{title,text,url:u}:{title,text});return'shared'}catch(e){if(e&&e.name==='AbortError')return'cancel'}}
+ try{await navigator.clipboard.writeText(full);return'copied'}catch(e){}
+ const t=document.createElement('textarea');t.value=full;t.style.position='fixed';t.style.opacity=0;document.body.appendChild(t);t.select();
+ let ok=false;try{ok=document.execCommand('copy')}catch(e){}t.remove();
+ if(!ok){window.prompt('Copia este texto:',full);return'cancel'}return'copied'}
+async function doShare(title,text){const x=await out(title,text);if(x==='shared')toast('Listo ✓');if(x==='copied')toast('Texto y enlace copiados ✓')}
+
+function result(){
+ const r=compute(st.ans),k=r.top,A=ARCH[k],S=r.style?STY[r.style]:null,AL=r.alt?STY[r.alt]:null,sec=ARCH[r.second];
+ const warn=r.caution==='alta'?'Antes de elegir un estilo, tu prioridad es estabilizar tu proceso y respetar límites de riesgo.'
+  :r.caution==='media'?'Algunas respuestas muestran señales de impulsividad, revancha, sobreoperación o saltarte reglas. Poner límites claros antes de acelerar te ayudará más que cambiar de estilo.':'';
+ let sb;
+ if(r.process)sb=`<div class="bx warn"><h3>Prioridad antes de elegir un estilo</h3><p>Estabilizar tu proceso: límite diario de pérdida, protocolo después de perder y práctica en simulación hasta demostrar consistencia. ${A.pn||''}</p></div>`;
+ else if(!S)sb=`<div class="bx warn"><h3>Tus opciones, hoy, son limitadas</h3><p>Con el tiempo y las condiciones que indicaste, ningún estilo encaja con claridad. No es un veredicto: puedes ampliar tus ventanas de tiempo o revisar qué pesa más (minutos disponibles o posiciones nocturnas) y volver a hacer el test.</p></div>`;
+ else sb='';
+ if(S){
+  const t=r.process?'Cuando tu proceso esté estable, podrías explorar':'Estilo que podrías explorar';
+  sb+=`<section class="sty" style="--bc:${S.color}"><p class="kick" style="color:${S.color}">${t}</p><h2><span class="pill">${S.name}</span></h2><p class="mu">${S.def} Los tiempos son aproximados y varían por mercado y método.</p>
+  <div class="bx"><h3>Por qué podría encajar con tus respuestas</h3><ul>${r.reasons.map(x=>`<li>Sobre ${x.topic} elegiste: «${x.text}»</li>`).join('')}</ul>
+  <p class="note" style="margin-top:8px">Compatibilidad orientativa: <b>${r.compat}</b> (puntuación interna del test, no una medición científica).</p></div>
+  <div class="bx"><h3>Qué debes tener en cuenta</h3><p>${S.ten}</p></div>
+  <div class="bx"><h3>Condición antes de adoptarlo</h3><p>${S.cond}</p></div>
+  ${AL?`<div class="bx" style="--bc:${AL.color}"><h3>Alternativa posible: ${AL.name}</h3><p>Está muy cerca en tus respuestas. ${AL.def} Lo que más decide entre ambos es tu disponibilidad real de tiempo y tu comodidad con posiciones abiertas.</p></div>`:''}
+  ${r.scNote?'<div class="bx warn"><h3>Sobre el scalping</h3><p>Tus respuestas apuntan a ritmos muy rápidos. El scalping solo tendría sentido con una estrategia validada, disciplina demostrada y condiciones de ejecución adecuadas; por ahora no se sugiere solo por ser rápido.</p></div>':''}
+  <div class="bx warn"><h3>Qué no significa</h3><p>No garantiza mejores resultados ni elimina el riesgo. Es una hipótesis para validar con datos y práctica.</p></div></section>`;
+ }
+ const mix=r.rank.map(x=>`<div class="row" style="--c:${ARCH[x].color}"><b>${ARCH[x].name}</b><div><i style="width:${Math.max(r.pa[x],4)}%"></i></div></div>`).join('');
+ app.innerHTML=`<div class="res" style="--ac:${A.color}"><p class="brand">WILLIAMS TRADER · TRADING PRO LAB</p>
+ <div class="img" id="im">Espacio para la imagen de ${A.name}</div>
+ <p class="kick">Tu tipo de trader</p><h1>${A.name}</h1><p class="tag">${A.tag}</p>
+ ${r.mixed?`<div class="bx warn"><h3>Tus respuestas muestran un perfil mixto</h3><p>Tu rasgo principal es ${A.name}, con una presencia casi igual de ${sec.name}. Tómalo como una orientación.</p></div>`:''}
+ <p>${A.desc}</p>
+ <div class="bx"><h3>Tu fortaleza</h3><p>${A.fort}</p></div>
+ <div class="bx" style="--bc:#FF8A5C"><h3>Tu punto débil</h3><p>${A.deb}</p></div>
+ <div class="bx"><h3>Qué vigilar</h3><p>${A.vig}</p></div>
+ ${warn?`<div class="bx warn"><h3>Atención</h3><p>${warn}</p></div>`:''}
+ ${r.conf==='baja'?'<div class="bx warn"><h3>Resultado orientativo</h3><p>Algunas respuestas reflejan tendencias distintas según la situación. Es normal: nadie opera igual en todos los contextos. Tómalo con cautela.</p></div>':''}
+ ${sb}
+ <div class="mix"><h2>Tu mezcla de rasgos</h2>${mix}</div>
+ <button class="b" id="sh">Compartir mi resultado</button>
+ <button class="b g" id="iv">Invitar a alguien a hacer el test</button>
+ <button class="b g" id="rt">Volver a hacer el test</button>
+ <p class="note">${NOTE} Las definiciones de estilos son aproximadas.</p></div>`;
+ const im=new Image();im.alt=A.name;im.onload=()=>{const b=document.getElementById('im');if(b){b.textContent='';b.appendChild(im)}};im.src='assets/arquetipos/'+A.slug+'.png';
+ $('#sh').onclick=()=>doShare('¿Qué tipo de trader eres?',shareText(r));
+ $('#iv').onclick=()=>doShare('¿Qué tipo de trader eres?','Yo ya descubrí qué tipo de trader soy. Haz el test y dime cuál te sale:');
+ $('#rt').onclick=reset;
+}
+
+function reset(){st={ans:Array(N).fill(null),i:0,screen:'cover'};try{localStorage.removeItem(KEY)}catch(e){}render();window.scrollTo(0,0)}
+function render(){
+ if(st.screen==='result'&&!done())st.screen='cover';
+ ({cover,quiz,loading,result})[st.screen]();
+}
+render();
+})();
+</script>
+</body>
+</html>
